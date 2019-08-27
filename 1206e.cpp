@@ -1,4 +1,4 @@
-// WIP
+// WA
 
 #include <iostream>
 #include <vector>
@@ -15,9 +15,10 @@ vector<vector<bool> > known;
 
 bool ask(int x1, int y1, int x2, int y2) {
   int response;
-  cout << "? " << x1+1 << " " << y1+1 << " " << x2+1 << " " << y2+1 << flush;
+  cout << "? " << x1+1 << " " << y1+1 << " " << x2+1 << " " << y2+1 << endl << flush;
   cin >> response;
   if (response == -1) exit(0); // failure
+  /*
   cout << "!" << endl;
   for (int i = 0; i < ans.size(); i++) {
     for (int j = 0; j < ans[i].size(); j++) {
@@ -32,7 +33,7 @@ bool ask(int x1, int y1, int x2, int y2) {
       else cout << 0;
     }
     cout << endl;
-  }
+  }*/
   return (response == 1);
 }
 
@@ -112,28 +113,55 @@ int main() {
     known[0][1] = true;
   }
   else {
-    res = ask(0, 1, 2, 2);
-    if (res) {
-      ans[0][1] = ans[2][2];
-      ans[1][2] = ans[1][1];
+    bool res1 = ask(0, 1, 1, 2);
+    bool res2 = ask(1, 0, 1, 2);
+    if (res1 && res2) {
+      bool res3 = ask(0, 1, 2, 2);
+      if (res3) {
+        ans[0][1] = !ans[0][0];
+        ans[1][0] = !ans[0][0];
+        ans[1][2] = !ans[0][0];
+        known[0][1] = true;
+        known[1][0] = true;
+        known[1][2] = true;
+      }
+      else {
+        ans[0][1] = ans[0][0];
+        ans[1][0] = ans[0][0];
+        ans[1][2] = ans[0][0];
+        known[0][1] = true;
+        known[1][0] = true;
+        known[1][2] = true;
+      }
     }
-    else {
-
-    }
-    if (known[1][2]) {
-      res = ask(0, 1, 2, 1);
-      if (res) ans[2][1] = ans[0][1];
-      else ans[2][1] = !ans[0][1];
-      known[2][1] = true;
-      res = ask(1, 0, 2, 1);
-      if (res) ans[1][0] = ans[2][1];
-      else ans[1][0] = !ans[2][1];
+    else if (!res1 && res2){
+      ans[0][1] = ans[0][0];
+      ans[1][0] = !ans[0][0];
+      ans[1][2] = !ans[0][0];
+      known[0][1] = true;
       known[1][0] = true;
-      res = ask(1, 0, 1, 2);
-      if (res) ans[1][2] = ans[1][0];
-      else ans[1][2] = !ans[1][0];
       known[1][2] = true;
     }
+    else if (res1 && !res2) {
+      ans[0][1] = !ans[0][0];
+      ans[1][0] = ans[0][0];
+      ans[1][2] = !ans[0][0];
+      known[0][1] = true;
+      known[1][0] = true;
+      known[1][2] = true;
+    }
+    else {
+      ans[0][1] = ans[0][0];
+      ans[1][0] = ans[0][0];
+      ans[1][2] = !ans[0][0];
+      known[0][1] = true;
+      known[1][0] = true;
+      known[1][2] = true;
+    }
+    res = ask(0, 1, 2, 1);
+    if (res) ans[2][1] = ans[0][1];
+    else ans[2][1] = !ans[0][1];
+    known[2][1] = true;
   }
 
   // vertical
@@ -155,12 +183,14 @@ int main() {
     for (int j = 0; j < n - 1; j += 2) {
       bool res;
       if (i % 2 == 1) {
+        if (known[i+1][j+1]) continue;
         res = ask(i, j, i+1, j+1);
         if (res) ans[i+1][j+1] = ans[i][j];
         else ans[i+1][j+1] = !ans[i][j];
         known[i+1][j+1] = true;
       }
       else {
+        if (known[i+1][j+2]) continue;
         res = ask(i, j+1, i+1, j+2);
         if (res) ans[i+1][j+2] = ans[i][j+1];
         else ans[i+1][j+2] = !ans[i][j+1];
